@@ -7,12 +7,63 @@
 
 import SwiftUI
 
+
 struct UsersList: View {
+    @ObservedObject var taskManager: TaskManager
+
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        List(taskManager.users, id: \.userId) { user in
+            NavigationLink {
+                UserDetailView(user: user)
+            } label: {
+                HStack {
+                    Text("\(user.name) \(user.surname)")
+                        .bold()
+                    Spacer()
+                    Text(user.departmant ?? "")
+                        .foregroundColor(.white)
+                        .font(.callout)
+                        .padding(.vertical, 5)
+                        .padding(.horizontal)
+                        .background {
+                            Capsule()
+                                .fill(.brown.opacity(0.8))
+                        }
+                }
+            }
+        }
+        .onAppear {
+            taskManager.fetchUsers()
+        }
     }
 }
 
-#Preview {
-    UsersList()
+
+struct UserDetailView: View {
+    let user: Users
+
+    var body: some View {
+        List {
+            Section(header: Text("Personal Information")) {
+                Text("\(user.name)")
+                Text("\(user.surname)")
+                Text("\(user.email)")
+            }
+            .bold()
+            Section(header: Text("Department")) {
+                Text("\(user.departmant)")
+            }
+            .bold()
+            Section(header: Text("Tasks List")) {
+                NavigationLink {
+                    TasksList(taskManager: TaskManager(), user: user)
+                } label: {
+                    Text("User Tasks")
+                }
+            }
+            .bold()
+        }
+        .listStyle(InsetGroupedListStyle())
+        .navigationTitle("User Detail")
+    }
 }

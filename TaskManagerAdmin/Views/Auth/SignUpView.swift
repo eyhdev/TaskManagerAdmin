@@ -9,14 +9,14 @@ import SwiftUI
 
 // SwiftUI view struct representing a sign-up screen
 struct SignUpView: View {
-    @Binding var users: Users // Binding for user information input
+    @Binding var admins: Admins // Binding for user information input
     @Binding var confirmPassword: String // Binding for confirming the password
     @Binding var isShowingLogin: Bool // Binding to toggle between login and sign-up views
     @StateObject var taskManager: TaskManager // State object for managing the task manager
 
     // Computed property to check if passwords match and are not empty
     var passwordsMatch: Bool {
-        return users.password == confirmPassword && !users.password.isEmpty
+        return admins.password == confirmPassword && !admins.password.isEmpty
     }
 
     var body: some View {
@@ -32,23 +32,23 @@ struct SignUpView: View {
 
                 // Input fields for user information
                 VStack(spacing: 16) {
-                    TextField("Name", text: $users.name)
+                    TextField("Name", text: $admins.name)
                         .padding(12)
                         .background(RoundedRectangle(cornerRadius: 2).stroke(Color.gray, lineWidth: 0.1))
 
-                    TextField("Surname", text: $users.surname)
+                    TextField("Surname", text: $admins.surname)
                         .padding(12)
                         .background(RoundedRectangle(cornerRadius: 2).stroke(Color.gray, lineWidth: 0.1))
 
-                    TextField("What is your department?", text: $users.departmant)
+                    TextField("What is your department?", text: $admins.department)
                         .padding(12)
                         .background(RoundedRectangle(cornerRadius: 2).stroke(Color.gray, lineWidth: 0.1))
 
-                    TextField("Email", text: $users.email)
+                    TextField("Email", text: $admins.email)
                         .padding(12)
                         .background(RoundedRectangle(cornerRadius: 2).stroke(Color.gray, lineWidth: 0.1))
 
-                    SecureField("Password", text: $users.password)
+                    SecureField("Password", text: $admins.password)
                         .padding(12)
                         .background(RoundedRectangle(cornerRadius: 2).stroke(Color.gray, lineWidth: 0.1))
 
@@ -61,7 +61,7 @@ struct SignUpView: View {
                 VStack(spacing: 20) {
                     // Sign Up button
                     Button(action: {
-                        taskManager.signUp(users: users) { success in
+                        taskManager.signUp(admins: admins) { success in
                             if success {
                                 taskManager.fetchTasks()
                             }

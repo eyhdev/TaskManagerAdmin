@@ -16,27 +16,17 @@ extension Date {
 
         return taskDate >= currentDate
     }
-}
+}sad
 
 // SwiftUI view struct representing a list of tasks
 struct TasksList: View {
     @StateObject var taskManager: TaskManager // State object for managing the task manager
-    var Tasks: [Task] {
-        return taskManager.tasks.filter { !$0.isDone && $0.deadline.isNew } // Filter tasks based on completion status and whether they are new
-    }
+    @State private var isShowingAddTaskSheet = false
+    let user: Users
     
     var body: some View {
         // Vertical scroll view containing the list of tasks
         ScrollView(.vertical, showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Welcome Back 👋🏻")
-                    .font(.title2)
-                Text("Here's Update Today.")
-                    .font(.title3.bold())
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding()
-            
             VStack {
                 // Check if there are no tasks, display a message and an image
                 if taskManager.tasks.isEmpty {
@@ -52,7 +42,7 @@ struct TasksList: View {
                 } else {
                     // Display the list of tasks using LazyVStack
                     LazyVStack(spacing: 10) {
-                        ForEach(Tasks) { task in
+                        ForEach(taskManager.tasksForUser(userId: user.userId ?? "")) { task in
                             TaskCard(task: task, taskManager: TaskManager())
                         }
                         .padding(5)
@@ -60,6 +50,27 @@ struct TasksList: View {
                 }
             }
             .padding(5)
+            .navigationBarItems(trailing: Button(action: {
+                isShowingAddTaskSheet.toggle()
+            }) {
+                Label {
+                    Text("Add Task")
+                        .font(.callout)
+                        .fontWeight(.semibold)
+                    
+                } icon: {
+                    Image(systemName: "plus.app.fill")
+                }
+                .foregroundColor(.white)
+                .padding(5)
+                .background(.brown , in:Capsule())
+            })
+            .sheet(isPresented: $isShowingAddTaskSheet) {
+                AddTaskView(isPresented: $isShowingAddTaskSheet, onAddTask: { title, details, color, type, userId, progress, deadline in
+                    taskManager.addTask(title: title, details: details, color: color, type: type, userId: userId, progress: progress, deadline: deadline)
+                }, user: user)
+            }
+
         }
         .onAppear(perform: taskManager.fetchTasks) // Fetch tasks when the view appears
     }

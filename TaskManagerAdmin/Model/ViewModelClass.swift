@@ -23,7 +23,16 @@ struct Task: Identifiable, Codable {
     var progress: Int
 }
 
-// Define a Users struct conforming to Codable
+// Define a Admins struct conforming to Codable
+struct Admins: Codable {
+    var name: String
+    var surname: String
+    var email: String
+    var department: String // Corrected the typo in the property name
+    var password: String
+    var userId: String?
+}
+
 struct Users: Codable {
     var name: String
     var surname: String
@@ -36,6 +45,7 @@ struct Users: Codable {
 // Define a TaskManager class as ObservableObject
 class TaskManager: ObservableObject {
     @Published var tasks: [Task] = [] // Published property for updating UI
+    @Published var users: [Users] = [] 
     private let db = Firestore.firestore() // Firestore database instance
     private let auth = Auth.auth() // Firebase authentication instance
     
@@ -51,23 +61,23 @@ class TaskManager: ObservableObject {
         }
     }
     
-    // Function to sign up a new user
-    func signUp(users: Users, completion: @escaping (Bool) -> Void) {
-        auth.createUser(withEmail: users.email, password: users.password) { result, error in
+    // Function to sign up a new admin
+    func signUp(admins: Admins, completion: @escaping (Bool) -> Void) {
+        auth.createUser(withEmail: admins.email, password: admins.password) { result, error in
             guard let user = result?.user, error == nil else {
                 completion(false)
                 return
             }
             
-            var newUser = users
-            newUser.userId = user.uid
+            var newAdmin = admins
+            newAdmin.userId = user.uid
             
             do {
-                // Save user details to Firestore
-                _ = try self.db.collection("users").document(user.uid).setData(from: newUser)
+                // Save admin details to Firestore
+                _ = try self.db.collection("admins").document(user.uid).setData(from: newAdmin)
                 completion(true)
             } catch {
-                print("Error saving user details: \(error.localizedDescription)")
+                print("Error saving admin details: \(error.localizedDescription)")
                 completion(false)
             }
         }
@@ -82,34 +92,56 @@ class TaskManager: ObservableObject {
             print("Error signing out: \(error.localizedDescription)")
         }
     }
-    
-    // Function to fetch tasks for the current authenticated user
-    func fetchTasks() {
-        guard let userId = auth.currentUser?.uid else { return }
-        
-        db.collection("tasks")
-            .whereField("userId", isEqualTo: userId)
-            .addSnapshotListener { querySnapshot, error in
-                guard let documents = querySnapshot?.documents else {
-                    print("Error fetching documents: \(error?.localizedDescription ?? "Unknown error")")
-                    return
-                }
-                
-                // Update tasks array with fetched data
-                self.tasks = documents.compactMap { document in
-                    do {
-                        return try document.data(as: Task.self)
-                    } catch {
-                        print("Error decoding task: \(error.localizedDescription)")
-                        return nil
-                    }
+
+    // Add a new function to fetch users
+    func fetchUsers() {
+        db.collection("users").addSnapshotListener { querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {
+                print("Error fetching users: \(error?.localizedDescription ?? "Unknown error")")
+                return
+            }
+
+            // Update users array with fetched data
+            self.users = documents.compactMap { document in
+                do {
+                    return try document.data(as: Users.self)
+                } catch {
+                    print("Error decoding user: \(error.localizedDescription)")
+                    return nil
                 }
             }
+        }
     }
+    // Function to fetch tasks for the current authenticated user
+    func fetchTasks() {
+        // Fetch all tasks initially
+        db.collection("tasks").addSnapshotListener { querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {
+                print("Error fetching tasks: \(error?.localizedDescription ?? "Unknown error")")
+                return
+            }
+
+            // Update tasks array with fetched data
+            self.tasks = documents.compactMap { document in
+                do {
+                    return try document.data(as: Task.self)
+                } catch {
+                    print("Error decoding task: \(error.localizedDescription)")
+                    return nil
+                }
+            }
+        }
+    }
+
+    // Function to get tasks for a specific user
+    func tasksForUser(userId: String) -> [Task] {
+        return tasks.filter { $0.userId == userId }
+    }
+
     
     // Function to add a new task
-    func addTask(title: String, details: String, color: String, type: String, progress: Int, deadline: Date) {
-        guard let userId = auth.currentUser?.uid else { return }
+    func addTask(title: String, details: String, color: String, type: String, userId: String,progress: Int, deadline: Date) {
+        
         
         do {
             // Format current time

@@ -21,8 +21,8 @@ struct AddTaskView: View {
     let taskTypes = ["Basic", "Urgent", "Important"] // Array of task type options
 
     // Callback closure to add a new task
-    var onAddTask: (String, String, String, String, Int, Date) -> Void
-
+    var onAddTask: (String, String, String, String, String, Int, Date) -> Void
+    var user: Users
     var body: some View {
         NavigationView {
             Form {
@@ -75,7 +75,7 @@ struct AddTaskView: View {
                         let selectedTaskType = taskTypes[selectedTaskTypeIndex]
                         
                         // Call the onAddTask closure with the provided task details
-                        onAddTask(taskTitle, taskDetails, selectedColor, selectedTaskType, progress, taskDeadline)
+                        onAddTask(taskTitle, taskDetails, selectedColor, selectedTaskType, user.userId ?? "", progress, taskDeadline)
                         
                         // Close the AddTaskView
                         isPresented = false

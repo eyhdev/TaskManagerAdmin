@@ -15,13 +15,13 @@ struct AuthView: View {
     @StateObject var taskManager: TaskManager
 
     // Create an instance of Users
-    @State private var users = Users(name: "", surname: "", email: "", departmant: "", password: "", userId: nil)
+    @State private var users = Admins(name: "", surname: "", email: "", department: "", password: "", userId: nil)
 
     var body: some View {
         if isShowingLogin {
             LoginView(email: $email, password: $password, isShowingLogin: $isShowingLogin, taskManager: taskManager)
         } else {
-            SignUpView(users: $users, confirmPassword: $confirmPassword, isShowingLogin: $isShowingLogin, taskManager: taskManager)
+            SignUpView(admins: $users, confirmPassword: $confirmPassword, isShowingLogin: $isShowingLogin, taskManager: taskManager)
         }
     }
 }
