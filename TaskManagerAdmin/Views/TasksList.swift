@@ -16,11 +16,11 @@ extension Date {
 
         return taskDate >= currentDate
     }
-}sad
+}
 
 // SwiftUI view struct representing a list of tasks
 struct TasksList: View {
-    @StateObject var taskManager: TaskManager // State object for managing the task manager
+    @StateObject var taskManager = TaskManager() // State object for managing the task manager
     @State private var isShowingAddTaskSheet = false
     let user: Users
     

@@ -28,12 +28,10 @@ struct ExpiredTaskCard: View {
         
             Text(task.title ?? "")
                 .font(.title2.bold())
-                .foregroundColor(.gray)
                 .padding(.vertical)
             
             Text(task.details ?? "")
                 .font(.subheadline.bold())
-                .foregroundColor(.gray)
                 .padding(.vertical,10)
             
             
@@ -41,19 +39,16 @@ struct ExpiredTaskCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     Label {
                         Text((task.deadline ?? Date()).formatted(date: .long, time: .omitted))
-                            .foregroundColor(.gray)
                     } icon: {
                         Image(systemName: "calendar")
-                            .foregroundColor(.gray)
                     }
                     .font(.caption)
                     
                     Label {
                         Text((task.deadline ?? Date()).formatted(date: .omitted, time: .shortened))
-                            .foregroundColor(.gray)
+
                     } icon: {
                         Image(systemName: "clock")
-                            .foregroundColor(.gray)
                     }
                     .font(.caption)
                 }

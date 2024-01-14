@@ -14,8 +14,8 @@
             filePath = "TaskManagerAdmin/Model/ViewModelClass.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "143"
-            endingLineNumber = "143"
+            startingLineNumber = "144"
+            endingLineNumber = "144"
             landmarkName = "addTask(title:details:color:type:userId:progress:deadline:)"
             landmarkType = "7">
          </BreakpointContent>

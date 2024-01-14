@@ -5,13 +5,14 @@
 //  Created by eyh.mac on 7.01.2024.
 //
 
-import SwiftUI
 
+import SwiftUI
+import PDFKit
 // SwiftUI view struct representing a task card
 struct TaskCard: View {
     var task: Task // Task data model
     @StateObject var taskManager: TaskManager // State object for managing the task manager
-
+    @State private var isShowingPDF = false
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             // Type indicator (e.g., "Basic", "Urgent") with background color
@@ -56,6 +57,7 @@ struct TaskCard: View {
                     // Deadline with calendar icon
                     Label {
                         Text((task.deadline ?? Date()).formatted(date: .long, time: .omitted))
+                            .foregroundStyle(.gray)
                     } icon: {
                         Image(systemName: "calendar")
                     }
@@ -64,6 +66,7 @@ struct TaskCard: View {
                     // Time with clock icon
                     Label {
                         Text((task.deadline ?? Date()).formatted(date: .omitted, time: .shortened))
+                            .foregroundStyle(.gray)
                     } icon: {
                         Image(systemName: "clock")
                     }
@@ -72,16 +75,91 @@ struct TaskCard: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 // Button to toggle task completion status (checkmark or circle icon)
-                Button {
-                    taskManager.toggleTaskStatus(task)
-                } label: {
-                    Image(systemName: task.isDone ? "checkmark.circle.fill" : "circle")
-                        .font(.title2)
+                HStack {
+                    Button("Display PDF") {
+                        isShowingPDF.toggle()
+                    }
+                    .sheet(isPresented: $isShowingPDF) {
+                        PDFViewFromLink(url: task.fileURL ?? "") // Replace with your PDF URL
+                    }
+                    .padding(.horizontal)
+                    
+                    Button {
+                        taskManager.toggleTaskStatus(task)
+                    } label: {
+                        Image(systemName: task.isDone ? "checkmark.circle.fill" : "circle")
+                            .font(.title2)
+                    }
                 }
+                
             }
         }
         .padding()
         .frame(maxWidth: .infinity)
         .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(.ultraThinMaterial))
+    }
+}
+import SwiftUI
+import PDFKit
+
+struct SharePDFView: UIViewControllerRepresentable {
+    let pdfDocument: PDFDocument
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        let pdfData = pdfDocument.dataRepresentation()!
+        let activityViewController = UIActivityViewController(activityItems: [pdfData], applicationActivities: nil)
+        return activityViewController
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {
+        // Update the view controller if needed
+    }
+}
+
+struct PDFViewFromLink: View {
+    let url: String
+
+    @State private var isShareSheetPresented = false
+
+    var body: some View {
+        NavigationView {
+            VStack {
+                if let url = URL(string: url),
+                   let pdfDocument = PDFDocument(url: url) {
+                    PDFKitView(pdfDocument: pdfDocument)
+                        .navigationBarTitle("PDF Viewer", displayMode: .inline)
+                        .navigationBarItems(trailing:
+                            HStack {
+                                Button(action: {
+                                    isShareSheetPresented.toggle()
+                                }) {
+                                    Image(systemName: "square.and.arrow.up")
+                                }
+                                .sheet(isPresented: $isShareSheetPresented) {
+                                    SharePDFView(pdfDocument: pdfDocument)
+                                }
+                            }
+                        )
+                } else {
+                    Text("Failed to load PDF.")
+                        .foregroundColor(.red)
+                }
+            }
+        }
+    }
+}
+
+struct PDFKitView: UIViewRepresentable {
+    let pdfDocument: PDFDocument
+
+    func makeUIView(context: Context) -> PDFView {
+        let pdfView = PDFView()
+        pdfView.document = pdfDocument
+        pdfView.autoScales = true
+        return pdfView
+    }
+
+    func updateUIView(_ uiView: PDFView, context: Context) {
+        uiView.document = pdfDocument
     }
 }

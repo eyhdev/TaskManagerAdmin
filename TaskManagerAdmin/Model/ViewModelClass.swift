@@ -21,6 +21,7 @@ struct Task: Identifiable, Codable {
     var createdTime: String  // New property
     var userId: String?
     var progress: Int
+    var fileURL: String?
 }
 
 // Define a Admins struct conforming to Codable
