@@ -19,9 +19,9 @@ struct ExpiredTaskCard: View {
                     .font(.callout)
                     .padding(.vertical,5)
                     .padding(.horizontal)
-                    .background{
+                    .background {
                         Capsule()
-                            .fill(.white.opacity(0.8))
+                            .fill(Color(task.color).opacity(0.7))
                     }
                 Spacer()
             }

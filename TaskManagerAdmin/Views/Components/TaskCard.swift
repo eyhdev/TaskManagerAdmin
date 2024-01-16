@@ -24,11 +24,11 @@ struct TaskCard: View {
                     .padding(.horizontal)
                     .background {
                         Capsule()
-                            .fill(.brown.opacity(0.8))
+                            .fill(Color(task.color).opacity(0.7))
                     }
                 Spacer()
                 // Progress indicator (e.g., "100%") with background color
-                Text(task.isDone ? "100%" : "\(task.progress)0%")
+                Text(task.isDone ? "100%" : "\(task.progress * 10)%")
                     .foregroundColor(.white)
                     .font(.callout)
                     .padding(.vertical, 5)

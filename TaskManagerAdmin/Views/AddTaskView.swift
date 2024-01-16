@@ -71,7 +71,7 @@ struct AddTaskView: View {
                 Section {
                     // Button to add the task with the selected parameters
                     Button("Add Task") {
-                        let selectedColor = colors[selectedColorIndex].lowercased()
+                        let selectedColor = colors[selectedColorIndex]
                         let selectedTaskType = taskTypes[selectedTaskTypeIndex]
                         
                         // Call the onAddTask closure with the provided task details
